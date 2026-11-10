@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chúc Mừng Sinh Nhật Cẩm Tiên 💖✨</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tone.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Dancing+Script:wght@700&family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastel: {
+                            purple: '#e8dff5',
+                            pink: '#fce1e4',
+                            yellow: '#fcf4dd',
+                            blue: '#ddedf4',
+                            mint: '#ddf4e8'
+                        }
+                    },
+                    fontFamily: {
+                        dancing: ['Dancing Script', 'cursive'],
+                        comfortaa: ['Comfortaa', 'cursive'],
+                        nunito: ['Nunito', 'sans-serif'],
+                        pacifico: ['Pacifico', 'cursive'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #e8dff5 0%, #fce1e4 40%, #ddedf4 100%);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Sparkles & floating elements */
+        .sparkle {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.6); opacity: 0; }
+            20% { opacity: 0.9; }
+            80% { opacity: 0.9; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        /* Flame animation */
+        .flame {
+            width: 14px;
+            height: 22px;
+            background: linear-gradient(to bottom, #fff 0%, #ffeb3b 50%, #ff9800 100%);
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 15px #ff9800, 0 0 25px #ff5722;
+            animation: flicker 0.6s infinite alternate ease-in-out;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(1) rotate(-2deg); opacity: 0.9; }
+            100% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+        }
+
+        .flame.extinguished {
+            display: none !important;
+        }
+
+        .smoke {
+            display: none;
+            width: 8px;
+            height: 20px;
+            background: rgba(200, 200, 200, 0.7);
+            border-radius: 10px;
+            animation: smokeUp 1.5s forwards ease-out;
+        }
+
+        @keyframes smokeUp {
+            0% { transform: translateY(0) scaleX(1); opacity: 0.8; }
+            100% { transform: translateY(-40px) scaleX(3); opacity: 0; }
+        }
+
+        .progress-bar-fill {
+            transition: width 0.1s linear;
+        }
+
+        .floating-bubble {
+            position: fixed;
+            bottom: -50px;
+            pointer-events: none;
+            animation: riseUp 5s linear forwards;
+            z-index: 40;
+        }
+
+        @keyframes riseUp {
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-110vh) scale(1.3); opacity: 0; }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 20px 40px rgba(186, 104, 200, 0.18);
+        }
+
+        /* Cake Intro Animations */
+        .cake-layer {
+            opacity: 0;
+            transform: translateY(-250px) scale(0.8);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cake-layer.drop-in {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .candle-appear {
+            opacity: 0;
+            transform: translateY(-40px) scale(0.3);
+            transition: all 0.6s ease-out;
+        }
+
+        .candle-appear.show {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center relative min-h-screen p-2 sm:p-4 text-gray-800">
+
+    <!-- FLOATING BACKGROUND ELEMENTS -->
+    <div id="sparkles-container" class="fixed inset-0 pointer-events-none z-0"></div>
+
+    <!-- CANVAS PHÁO HOA & CONFETTI OVERLAY -->
+    <canvas id="fireworks-canvas" class="fixed inset-0 pointer-events-none z-30 w-full h-full"></canvas>
+
+    <!-- ==================== 1. GIAO DIỆN HIỆU ỨNG INTRO (BÁNH 3 TẦNG RƠI + NẾN SỐ 8) ==================== -->
+    <div id="welcome-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-gradient-to-br from-purple-950 via-indigo-950 to-pink-950 text-white transition-opacity duration-1000">
+        
+        <div class="text-center space-y-4 max-w-md w-full px-4 flex flex-col items-center">
+            
+            <div id="intro-title-area" class="space-y-2">
+                <div class="flex justify-center items-center space-x-2 text-yellow-300 text-3xl animate-bounce">
+                    <span>✨</span>
+                    <span>👑</span>
+                    <span>✨</span>
+                </div>
+                <h1 class="font-dancing text-4xl sm:text-5xl text-pink-300 drop-shadow-[0_4px_10px_rgba(255,182,193,0.8)] leading-tight">
+                    Món Quà Bí Mật!
+                </h1>
+                <p class="font-comfortaa text-sm text-pink-100/90">
+                    Bất ngờ đặc biệt dành riêng cho công chúa <br>
+                    <span class="font-bold text-yellow-300 text-lg underline decoration-wavy">Cẩm Tiên</span> tròn 8 tuổi! 🌸
+                </p>
+            </div>
+
+            <!-- NÚT MỞ BẰNG BẮT ĐẦU HIỆU ỨNG -->
+            <button id="start-animation-btn" onclick="runCakeAnimation()" class="mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-2xl border-2 border-yellow-300 transform transition active:scale-95 text-base sm:text-lg animate-pulse">
+                🎁 Khám phá món quà ✨
+            </button>
+
+            <!-- KHU VỰC HIỆN BÁNH VÀ NẾN INTRO -->
+            <div id="cake-animation-container" class="hidden relative my-6 flex-col items-center justify-end h-64 w-80">
+                
+                <!-- Nến Số 8 -->
+                <div id="intro-candle" class="candle-appear flex flex-col items-center z-30 mb-[-6px]">
+                    <div id="intro-flame" class="flame opacity-0 transition-opacity duration-500"></div>
+                    <div class="w-6 h-14 bg-gradient-to-b from-yellow-300 via-pink-500 to-purple-600 rounded-t-md shadow-lg border border-white flex items-center justify-center font-bold text-base text-white">8</div>
+                </div>
+
+                <!-- Tầng 3 (Tầng đỉnh) -->
+                <div id="layer-3" class="cake-layer w-36 h-14 bg-gradient-to-r from-purple-300 via-pink-200 to-purple-300 rounded-t-2xl relative border-b-4 border-purple-400 shadow-md flex items-center justify-center z-20">
+                    <div class="absolute top-0 w-full flex justify-around text-white/90 text-xs">
+                        <span>🌸</span><span>🍓</span><span>🌸</span>
+                    </div>
+                </div>
+
+                <!-- Tầng 2 (Tầng giữa) -->
+                <div id="layer-2" class="cake-layer w-52 h-16 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 rounded-t-2xl relative border-b-4 border-purple-400 shadow-md flex items-center justify-around px-4 z-10">
+                    <span class="text-base">🎀</span>
+                    <span class="text-base">👑</span>
+                    <span class="text-base">🎀</span>
+                </div>
+
+                <!-- Tầng 1 (Tầng đáy) -->
+                <div id="layer-1" class="cake-layer w-68 sm:w-72 h-18 bg-gradient-to-r from-purple-400 via-pink-300 to-purple-400 rounded-t-2xl relative border-b-8 border-purple-500 shadow-lg flex items-center justify-around px-6 z-0">
+                    <span class="text-xl">✨</span>
+                    <span class="text-xl">🦄</span>
+                    <span class="text-xl">⭐</span>
+                    <span class="text-xl">✨</span>
+                </div>
+
+                <!-- Đế bánh -->
+                <div id="cake-base" class="w-76 sm:w-80 h-4 bg-white rounded-full shadow-2xl border border-gray-200 -mt-1 z-0 opacity-0 transition-opacity duration-300"></div>
+            </div>
+
+            <p id="intro-status-text" class="text-xs text-pink-200/70 font-light italic mt-2">
+                (Bật âm thanh thiết bị để tận hưởng điệu nhạc nha 🎵)
+            </p>
+        </div>
+    </div>
+
+
+    <!-- ==================== 2. GIAO DIỆN CHÍNH (MAIN BIRTHDAY HUB) ==================== -->
+    <main id="main-content" class="w-full max-w-4xl z-10 flex flex-col items-center opacity-0 transition-opacity duration-1000 hidden my-4 px-2 sm:px-4">
+        
+        <!-- HEADER TOP -->
+        <header class="text-center my-3 sm:my-6 relative w-full">
+            <div class="inline-block bg-white/70 backdrop-blur-md px-4 py-1.5 rounded-full border border-purple-300 shadow-sm mb-2">
+                <span class="text-purple-700 font-bold text-xs sm:text-sm tracking-wide">
+                    🎂 SỰ KIỆN SINH NHẬT 12/11/2018 - 12/11/2026 🎂
+                </span>
+            </div>
+            
+            <h1 class="font-dancing text-4xl sm:text-6xl md:text-7xl font-bold text-purple-700 drop-shadow-[0_3px_5px_rgba(186,104,200,0.3)] leading-tight">
+                Chúc Mừng Sinh Nhật <br class="sm:hidden"> Cẩm Tiên! 💖
+            </h1>
+            
+            <div class="flex items-center justify-center gap-2 mt-2">
+                <span class="h-0.5 w-12 bg-purple-400 rounded"></span>
+                <span class="text-purple-600 font-pacifico text-sm sm:text-base">Tròn 8 Tuổi Siêu Ngoan Ngoãn & Xinh Đẹp</span>
+                <span class="h-0.5 w-12 bg-purple-400 rounded"></span>
+            </div>
+        </header>
+
+        <!-- Dynamic Controls -->
+        <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 w-full max-w-xl">
+            <button onclick="toggleAudio()" id="music-toggle-btn" class="flex items-center space-x-2 bg-white/80 hover:bg-white text-purple-700 px-3.5 py-2 rounded-full shadow-md border border-purple-200 text-xs sm:text-sm font-semibold transition active:scale-95">
+                <i id="music-icon" class="fas fa-music text-purple-500 animate-spin"></i>
+                <span id="music-text">Đang phát nhạc 🎵</span>
+            </button>
+
+            <button onclick="triggerConfettiBurst()" class="flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-full shadow-md text-xs sm:text-sm font-bold transition active:scale-95">
+                <span>🎉 Pháo Hoa</span>
+            </button>
+
+            <button onclick="spawnHearts()" class="flex items-center space-x-2 bg-gradient-to-r from-pink-400 to-rose-400 hover:from-pink-500 hover:to-rose-500 text-white px-4 py-2 rounded-full shadow-md text-xs sm:text-sm font-bold transition active:scale-95">
+                <span>💖 Thả Trái Tim</span>
+            </button>
+
+            <button onclick="scrollToCake()" class="flex items-center space-x-2 bg-yellow-400 hover:bg-yellow-500 text-purple-950 px-4 py-2 rounded-full shadow-md text-xs sm:text-sm font-bold transition active:scale-95">
+                <span>🎂 Thổi Nến Bánh</span>
+            </button>
+        </div>
+
+
+        <!-- ==================== STORY SLIDESHOW ==================== -->
+        <section class="w-full glass-card rounded-3xl p-4 sm:p-6 mb-8 shadow-2xl relative overflow-hidden">
+            <div id="story-progress-container" class="flex gap-1.5 mb-4"></div>
+
+            <div class="relative min-h-[340px] sm:min-h-[380px] flex flex-col justify-between items-center text-center p-2">
+                <div class="flex items-center justify-between w-full text-xs sm:text-sm text-purple-700 font-bold mb-2 px-2">
+                    <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full shadow-inner flex items-center gap-1">
+                        <i class="fas fa-sparkles text-purple-500"></i>
+                        <span>Thước phim hành trình tuổi 8</span>
+                    </span>
+                    <span id="slide-counter" class="text-purple-600 font-mono">1/5</span>
+                </div>
+
+                <div id="slide-body" class="my-auto py-4 transition-all duration-500 transform w-full flex flex-col items-center"></div>
+
+                <div class="flex items-center justify-between w-full mt-4 pt-2 border-t border-purple-200/60">
+                    <button onclick="prevSlide()" class="p-2 sm:px-4 sm:py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-full font-bold text-xs sm:text-sm flex items-center space-x-1 transition active:scale-90">
+                        <i class="fas fa-chevron-left"></i>
+                        <span class="hidden sm:inline">Trước</span>
+                    </button>
+
+                    <div class="flex space-x-2">
+                        <button id="pause-btn" onclick="togglePauseStory()" class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-full text-xs font-semibold flex items-center gap-1">
+                            <i id="pause-icon" class="fas fa-pause"></i>
+                            <span id="pause-text">Tạm dừng</span>
+                        </button>
+                    </div>
+
+                    <button onclick="nextSlide()" class="p-2 sm:px-4 sm:py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full font-bold text-xs sm:text-sm flex items-center space-x-1 shadow-md transition active:scale-90">
+                        <span class="hidden sm:inline">Tiếp theo</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ==================== AGE & TIME COUNTER CARD ==================== -->
+        <section class="w-full glass-card rounded-3xl p-5 sm:p-6 mb-8 text-center relative overflow-hidden">
+            <h3 class="font-comfortaa text-lg sm:text-xl font-bold text-purple-800 mb-4 flex items-center justify-center gap-2">
+                <span>🌟</span> Hành Trình 8 Năm Rực Rỡ Của Cẩm Tiên <span>🌟</span>
+            </h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                <div class="bg-gradient-to-br from-purple-100 to-pink-50 p-3.5 rounded-2xl border border-purple-200 shadow-sm">
+                    <div id="count-years" class="text-2xl sm:text-3xl font-black text-purple-600 font-mono">8</div>
+                    <div class="text-xs sm:text-sm font-semibold text-gray-600 mt-1">Năm Tuổi ✨</div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-50 p-3.5 rounded-2xl border border-purple-200 shadow-sm">
+                    <div id="count-days" class="text-2xl sm:text-3xl font-black text-purple-600 font-mono">2,922</div>
+                    <div class="text-xs sm:text-sm font-semibold text-gray-600 mt-1">Ngày Yêu Thương 💖</div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-50 p-3.5 rounded-2xl border border-purple-200 shadow-sm">
+                    <div id="count-hours" class="text-2xl sm:text-3xl font-black text-purple-600 font-mono">70,128</div>
+                    <div class="text-xs sm:text-sm font-semibold text-gray-600 mt-1">Giờ Nụ Cười 😊</div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-100 to-pink-50 p-3.5 rounded-2xl border border-purple-200 shadow-sm">
+                    <div id="count-minutes" class="text-2xl sm:text-3xl font-black text-purple-600 font-mono">4,207,680</div>
+                    <div class="text-xs sm:text-sm font-semibold text-gray-600 mt-1">Phút Hạnh Phúc 🎈</div>
+                </div>
+            </div>
+            
+            <p class="text-xs text-purple-600 mt-4 italic font-medium">
+                (Sinh ngày: 12/11/2018 - Chính thức tròn 8 tuổi ngày 12/11/2026 💕)
+            </p>
+        </section>
+
+
+        <!-- ==================== INTERACTIVE BIRTHDAY CAKE MAIN ==================== -->
+        <section id="cake-section" class="w-full glass-card rounded-3xl p-6 sm:p-8 mb-8 text-center flex flex-col items-center relative">
+            <h3 class="font-dancing text-3xl sm:text-4xl text-purple-700 font-bold mb-2">
+                Bánh Sinh Nhật Tuổi 8 Kỳ Diệu
+            </h3>
+            <p class="text-xs sm:text-sm text-gray-600 mb-6 font-comfortaa">
+                Hãy nhắm mắt ước một điều ước thật đẹp rồi nhấn <span class="text-purple-600 font-bold">"Thổi Nến"</span> nhé Cẩm Tiên! ✨
+            </p>
+
+            <div class="relative my-6 flex flex-col items-center cursor-pointer" onclick="blowOutCandles()">
+                <!-- Nến sinh nhật -->
+                <div class="flex justify-center space-x-6 z-20 -mb-2">
+                    <div class="flex flex-col items-center">
+                        <div id="flame-1" class="flame"></div>
+                        <div id="smoke-1" class="smoke"></div>
+                        <div class="w-3.5 h-10 bg-gradient-to-b from-yellow-200 via-pink-400 to-purple-400 rounded-t-sm shadow-inner border border-white/50"></div>
+                    </div>
+                    <!-- Nến số 8 -->
+                    <div class="flex flex-col items-center">
+                        <div id="flame-2" class="flame"></div>
+                        <div id="smoke-2" class="smoke"></div>
+                        <div class="w-5 h-12 bg-gradient-to-b from-yellow-300 via-pink-500 to-purple-600 rounded-t-sm shadow-inner border border-white flex items-center justify-center font-bold text-sm text-white">8</div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div id="flame-3" class="flame"></div>
+                        <div id="smoke-3" class="smoke"></div>
+                        <div class="w-3.5 h-10 bg-gradient-to-b from-purple-400 via-pink-400 to-yellow-200 rounded-t-sm shadow-inner border border-white/50"></div>
+                    </div>
+                </div>
+
+                <!-- 3 Tầng bánh chính -->
+                <div class="w-44 sm:w-56 h-16 bg-gradient-to-r from-purple-300 via-pink-200 to-purple-300 rounded-t-3xl relative border-b-4 border-purple-400 shadow-md flex items-center justify-center">
+                    <div class="absolute top-0 w-full flex justify-around text-white/90 text-sm">
+                        <span>🌸</span><span>🍓</span><span>🌸</span><span>🍓</span><span>🌸</span>
+                    </div>
+                    <span class="font-pacifico text-purple-800 text-sm sm:text-base mt-2">Cẩm Tiên 8 Tuổi</span>
+                </div>
+
+                <div class="w-60 sm:w-72 h-20 bg-gradient-to-r from-pink-300 via-purple-300 to-pink-300 rounded-t-2xl relative border-b-8 border-purple-400 shadow-lg flex items-center justify-around px-4">
+                    <span class="text-lg">🎀</span>
+                    <span class="text-lg">👑</span>
+                    <span class="text-lg">🦄</span>
+                    <span class="text-lg">🎀</span>
+                </div>
+
+                <div class="w-68 sm:w-80 h-4 bg-white rounded-full shadow-2xl border border-gray-200 -mt-1"></div>
+            </div>
+
+            <button id="blow-btn" onclick="blowOutCandles()" class="mt-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-500 hover:to-amber-600 text-purple-950 px-6 py-3 rounded-full font-bold text-sm sm:text-base shadow-lg transform transition active:scale-95 flex items-center space-x-2">
+                <span>🌬️ Thổi Nến & Ước Điều Ước</span>
+            </button>
+            
+            <p id="wish-message" class="hidden mt-4 text-purple-700 font-bold text-base sm:text-lg animate-bounce">
+                🎉 Điều ước tuổi 8 của Cẩm Tiên đã được gửi đến vũ trụ! Chúc con luôn vui vẻ và hạnh phúc! 🌟
+            </p>
+        </section>
+
+        <!-- FOOTER SWEET MESSAGE -->
+        <footer class="text-center py-6 text-gray-600 text-xs sm:text-sm font-comfortaa">
+            <p class="flex items-center justify-center gap-1">
+                <span>Gửi ngàn tình yêu thương đến công chúa nhỏ</span>
+                <span class="font-bold text-purple-700">Cẩm Tiên</span>
+                <span>💖</span>
+            </p>
+            <p class="mt-1 text-purple-500 font-semibold">12/11/2018 - 12/11/2026 ✨ Happy 8th Birthday!</p>
+        </footer>
+
+    </main>
+
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        const slides = [
+            {
+                title: "Công Chúa Cẩm Tiên! 👑",
+                subtitle: "Chúc Mừng Sinh Nhật Tròn 8 Tuổi! 🎉🎂",
+                emoji: "👸",
+                stickers: ["🎂", "🎈", "✨", "👑"],
+                bgGradient: "from-purple-100 to-pink-100",
+                message: "Hôm nay là một ngày siêu tuyệt vời! Bé Cẩm Tiên (12/11/2018) của chúng ta đã chính thức tròn 8 tuổi rồi nè. Chúc con một tuổi mới ngập tràn nụ cười và xinh xắn nhất!",
+                accentColor: "text-purple-700"
+            },
+            {
+                title: "Học Giỏi & Siêu Ngoan Ngoãn 🌸",
+                subtitle: "Niềm Tự Hào Của Cả Gia Đình ✨",
+                emoji: "🦄",
+                stickers: ["💖", "📚", "🎨", "🌟"],
+                bgGradient: "from-pink-100 to-purple-100",
+                message: "Chúc Cẩm Tiên bước sang tuổi 8 thật chăm ngoan, học giỏi, luôn đạt nhiều điểm 10 rực rỡ và luôn là cô bé dịu dàng, ấm áp của gia đình nha!",
+                accentColor: "text-pink-600"
+            },
+            {
+                title: "Rực Rỡ & Tràn Ngập Nụ Cười 🎁",
+                subtitle: "Nhận Thật Nhiều Quà Xinh! 🧸",
+                emoji: "🎁",
+                stickers: ["🧸", "🍭", "🎀", "🎉"],
+                bgGradient: "from-purple-100 to-blue-100",
+                message: "Mong rằng mỗi ngày tuổi mới của Cẩm Tiên đều ngập tràn niềm vui, nhiều điều kỳ diệu và được nhận thật nhiều món quà xinh xắn đáng yêu!",
+                accentColor: "text-purple-700"
+            },
+            {
+                title: "Khỏe Mạnh & Chóng Lớn 💕",
+                subtitle: "Tuổi 8 Tuyệt Vời Nhất 🌸",
+                emoji: "💖",
+                stickers: ["🌸", "🍀", "🍬", "⭐"],
+                bgGradient: "from-pink-100 to-yellow-50",
+                message: "Chúc Cẩm Tiên luôn khỏe mạnh, vui tươi hồn nhiên, luôn có thật nhiều bạn tốt đồng hành và tỏa sáng rực rỡ như một vì sao nhỏ!",
+                accentColor: "text-rose-600"
+            },
+            {
+                title: "Happy 8th Birthday Cẩm Tiên! 🥳",
+                subtitle: "(12/11/2018 - 12/11/2026) 💕",
+                emoji: "🥳",
+                stickers: ["🎉", "👑", "🎂", "✨"],
+                bgGradient: "from-purple-200 to-pink-200",
+                message: "Hành trình tuổi 8 vô cùng hứa hẹn đang chờ đón Cẩm Tiên! Cùng bấm nút thổi nến và biến mọi ước mơ của con thành hiện thực nhé!",
+                accentColor: "text-purple-800"
+            }
+        ];
+
+        let currentSlide = 0;
+        let slideInterval = null;
+        const SLIDE_DURATION = 6000;
+        let isPaused = false;
+        let isAudioPlaying = false;
+        let synth = null;
+        let isCandleBlown = false;
+
+        function createSparkles() {
+            const container = document.getElementById('sparkles-container');
+            const items = ['✨', '💖', '🌸', '⭐', '🎈', '❄️', '🎀'];
+            for (let i = 0; i < 30; i++) {
+                const el = document.createElement('div');
+                el.className = 'sparkle';
+                el.innerText = items[Math.floor(Math.random() * items.length)];
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDuration = (Math.random() * 6 + 6) + 's';
+                el.style.animationDelay = (Math.random() * 5) + 's';
+                el.style.fontSize = (Math.random() * 14 + 14) + 'px';
+                container.appendChild(el);
+            }
+        }
+
+        /* -------------------------------------------------------------
+           HIỆU ỨNG INTRO: BÁNH RƠI 3 TẦNG -> NẾN SỐ 8 -> VÀO TRANG CHÍNH
+        ------------------------------------------------------------- */
+        function runCakeAnimation() {
+            // Phát nhạc ngay khi click
+            playBirthdayTune();
+
+            const startBtn = document.getElementById('start-animation-btn');
+            const statusText = document.getElementById('intro-status-text');
+            const cakeContainer = document.getElementById('cake-animation-container');
+            const cakeBase = document.getElementById('cake-base');
+            const layer1 = document.getElementById('layer-1');
+            const layer2 = document.getElementById('layer-2');
+            const layer3 = document.getElementById('layer-3');
+            const candle = document.getElementById('intro-candle');
+            const flame = document.getElementById('intro-flame');
+
+            // Ẩn nút bắt đầu & hiện container bánh
+            startBtn.classList.add('hidden');
+            statusText.innerText = "🎂 Đang chuẩn bị chiếc bánh tuổi 8 đặc biệt...";
+            cakeContainer.classList.remove('hidden');
+            cakeContainer.classList.add('flex');
+            cakeBase.classList.remove('opacity-0');
+
+            // Bước 1: Tầng đáy rơi xuống
+            setTimeout(() => {
+                layer1.classList.add('drop-in');
+            }, 300);
+
+            // Bước 2: Tầng giữa rơi xuống
+            setTimeout(() => {
+                layer2.classList.add('drop-in');
+            }, 1000);
+
+            // Bước 3: Tầng trên cùng rơi xuống
+            setTimeout(() => {
+                layer3.classList.add('drop-in');
+            }, 1700);
+
+            // Bước 4: Hiển thị nến số 8
+            setTimeout(() => {
+                candle.classList.add('show');
+                statusText.innerText = "🕯️ Thắp nến số 8 mừng sinh nhật Cẩm Tiên...";
+            }, 2500);
+
+            // Bước 5: Thắp ngọn lửa nến
+            setTimeout(() => {
+                flame.classList.remove('opacity-0');
+                triggerConfettiBurst();
+            }, 3200);
+
+            // Bước 6: Chuyển sang giao diện rực rỡ đầy đủ
+            setTimeout(() => {
+                statusText.innerText = "✨ Chào mừng Cẩm Tiên đến với bữa tiệc! ✨";
+                setTimeout(() => {
+                    transitionToMainHub();
+                }, 800);
+            }, 4200);
+        }
+
+        function transitionToMainHub() {
+            const welcomeScreen = document.getElementById('welcome-screen');
+            const mainContent = document.getElementById('main-content');
+
+            welcomeScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                mainContent.classList.remove('hidden');
+                setTimeout(() => {
+                    mainContent.classList.add('opacity-100');
+                }, 50);
+            }, 1000);
+
+            initStoryProgress();
+            renderSlide(0);
+            startAutoSlide();
+            updateTimeCounter();
+        }
+
+        /* -------------------------------------------------------------
+           NHẠC & TONE.JS
+        ------------------------------------------------------------- */
+        function playBirthdayTune() {
+            try {
+                Tone.start();
+                synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -8;
+
+                const notes = [
+                    { note: "G4", dur: "8n", time: 0 },
+                    { note: "G4", dur: "8n", time: 0.25 },
+                    { note: "A4", dur: "4n", time: 0.5 },
+                    { note: "G4", dur: "4n", time: 1.0 },
+                    { note: "C5", dur: "4n", time: 1.5 },
+                    { note: "B4", dur: "2n", time: 2.0 },
+
+                    { note: "G4", dur: "8n", time: 2.75 },
+                    { note: "G4", dur: "8n", time: 3.0 },
+                    { note: "A4", dur: "4n", time: 3.25 },
+                    { note: "G4", dur: "4n", time: 3.75 },
+                    { note: "D5", dur: "4n", time: 4.25 },
+                    { note: "C5", dur: "2n", time: 4.75 },
+
+                    { note: "G4", dur: "8n", time: 5.5 },
+                    { note: "G4", dur: "8n", time: 5.75 },
+                    { note: "G5", dur: "4n", time: 6.0 },
+                    { note: "E5", dur: "4n", time: 6.5 },
+                    { note: "C5", dur: "4n", time: 7.0 },
+                    { note: "B4", dur: "4n", time: 7.5 },
+                    { note: "A4", dur: "2n", time: 8.0 },
+
+                    { note: "F5", dur: "8n", time: 8.75 },
+                    { note: "F5", dur: "8n", time: 9.0 },
+                    { note: "E5", dur: "4n", time: 9.25 },
+                    { note: "C5", dur: "4n", time: 9.75 },
+                    { note: "D5", dur: "4n", time: 10.25 },
+                    { note: "C5", dur: "2n", time: 10.75 }
+                ];
+
+                const loop = new Tone.Part((time, value) => {
+                    synth.triggerAttackRelease(value.note, value.dur, time);
+                }, notes);
+
+                loop.loop = true;
+                loop.loopEnd = "12s";
+                loop.start(0);
+
+                Tone.Transport.start();
+                isAudioPlaying = true;
+                updateAudioUI();
+            } catch (e) {
+                console.log("Audio play error", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (isAudioPlaying) {
+                Tone.Transport.pause();
+                isAudioPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isAudioPlaying = true;
+            }
+            updateAudioUI();
+        }
+
+        function updateAudioUI() {
+            const musicIcon = document.getElementById('music-icon');
+            const musicText = document.getElementById('music-text');
+            if (!musicIcon || !musicText) return;
+            if (isAudioPlaying) {
+                musicIcon.className = "fas fa-music text-purple-500 animate-spin";
+                musicText.innerText = "Đang phát nhạc 🎵";
+            } else {
+                musicIcon.className = "fas fa-volume-mute text-gray-400";
+                musicText.innerText = "Đã tắt nhạc 🔇";
+            }
+        }
+
+        /* -------------------------------------------------------------
+           SLIDESHOW LOGIC
+        ------------------------------------------------------------- */
+        function initStoryProgress() {
+            const container = document.getElementById('story-progress-container');
+            container.innerHTML = '';
+            slides.forEach((_, idx) => {
+                const barBg = document.createElement('div');
+                barBg.className = 'h-1.5 flex-1 bg-purple-200/80 rounded-full overflow-hidden';
+                
+                const barFill = document.createElement('div');
+                barFill.id = `progress-fill-${idx}`;
+                barFill.className = 'h-full bg-purple-600 progress-bar-fill w-0';
+                
+                barBg.appendChild(barFill);
+                container.appendChild(barBg);
+            });
+        }
+
+        function renderSlide(index) {
+            const data = slides[index];
+            const slideBody = document.getElementById('slide-body');
+            const slideCounter = document.getElementById('slide-counter');
+
+            slideCounter.innerText = `${index + 1}/${slides.length}`;
+
+            slideBody.style.opacity = 0;
+            slideBody.style.transform = "scale(0.95)";
+
+            setTimeout(() => {
+                slideBody.innerHTML = `
+                    <div class="w-full bg-gradient-to-br ${data.bgGradient} p-5 sm:p-8 rounded-2xl border border-white shadow-inner flex flex-col items-center">
+                        <div class="flex justify-center items-center space-x-3 text-2xl sm:text-3xl mb-3 animate-bounce">
+                            ${data.stickers.map(s => `<span class="transform hover:scale-125 transition-transform cursor-default">${s}</span>`).join('')}
+                        </div>
+                        <div class="text-6xl sm:text-7xl mb-4 transform hover:rotate-12 transition-transform duration-300 filter drop-shadow-md">
+                            ${data.emoji}
+                        </div>
+                        <h2 class="font-dancing text-2xl sm:text-4xl font-bold ${data.accentColor} mb-1">
+                            ${data.title}
+                        </h2>
+                        <h4 class="font-comfortaa text-xs sm:text-sm font-semibold text-gray-600 mb-4">
+                            ${data.subtitle}
+                        </h4>
+                        <p class="font-nunito text-sm sm:text-base text-gray-700 max-w-lg leading-relaxed font-medium">
+                            "${data.message}"
+                        </p>
+                    </div>
+                `;
+
+                slideBody.style.opacity = 1;
+                slideBody.style.transform = "scale(1)";
+            }, 200);
+
+            for (let i = 0; i < slides.length; i++) {
+                const fill = document.getElementById(`progress-fill-${i}`);
+                if (fill) {
+                    fill.style.width = i <= index ? (i < index ? '100%' : '0%') : '0%';
+                }
+            }
+        }
+
+        function startAutoSlide() {
+            clearInterval(slideInterval);
+            let startTime = Date.now();
+            
+            slideInterval = setInterval(() => {
+                if (isPaused) return;
+
+                const elapsedTime = Date.now() - startTime;
+                const percentage = Math.min((elapsedTime / SLIDE_DURATION) * 100, 100);
+                
+                const currentFill = document.getElementById(`progress-fill-${currentSlide}`);
+                if (currentFill) {
+                    currentFill.style.width = `${percentage}%`;
+                }
+
+                if (elapsedTime >= SLIDE_DURATION) {
+                    nextSlide();
+                    startTime = Date.now();
+                }
+            }, 50);
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            renderSlide(currentSlide);
+            startAutoSlide();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            renderSlide(currentSlide);
+            startAutoSlide();
+        }
+
+        function togglePauseStory() {
+            isPaused = !isPaused;
+            const pauseIcon = document.getElementById('pause-icon');
+            const pauseText = document.getElementById('pause-text');
+            if (isPaused) {
+                pauseIcon.className = "fas fa-play";
+                pauseText.innerText = "Tiếp tục";
+            } else {
+                pauseIcon.className = "fas fa-pause";
+                pauseText.innerText = "Tạm dừng";
+            }
+        }
+
+        function updateTimeCounter() {
+            const birthDate = new Date('2018-11-12T00:00:00');
+            const targetDate = new Date('2026-11-12T00:00:00');
+            const diffMs = targetDate - birthDate;
+
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor(diffMs / (1000 * 60));
+
+            document.getElementById('count-years').innerText = 8;
+            document.getElementById('count-days').innerText = days.toLocaleString();
+            document.getElementById('count-hours').innerText = hours.toLocaleString();
+            document.getElementById('count-minutes').innerText = minutes.toLocaleString();
+        }
+
+        function blowOutCandles() {
+            if (isCandleBlown) return;
+            
+            isCandleBlown = true;
+            for (let i = 1; i <= 3; i++) {
+                const flame = document.getElementById(`flame-${i}`);
+                const smoke = document.getElementById(`smoke-${i}`);
+                if (flame) flame.classList.add('extinguished');
+                if (smoke) smoke.style.display = 'block';
+            }
+
+            document.getElementById('wish-message').classList.remove('hidden');
+            document.getElementById('blow-btn').innerText = "✨ Đã Thổi Nến & Nhận Điều Ước ✨";
+            document.getElementById('blow-btn').classList.replace('from-yellow-400', 'from-green-400');
+
+            triggerConfettiBurst();
+            spawnHearts();
+        }
+
+        function scrollToCake() {
+            document.getElementById('cake-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function spawnHearts() {
+            const icons = ['💖', '🎈', '⭐', '🌸', '✨'];
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'floating-bubble text-2xl sm:text-3xl';
+                bubble.innerText = icons[Math.floor(Math.random() * icons.length)];
+                bubble.style.left = Math.random() * 90 + 5 + 'vw';
+                bubble.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                document.body.appendChild(bubble);
+
+                setTimeout(() => bubble.remove(), 5000);
+            }
+        }
+
+        function triggerConfettiBurst() {
+            confetti({
+                particleCount: 90,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#ba68c8', '#f783ac', '#ffeb3b', '#64b5f6', '#ffffff']
+            });
+
+            setTimeout(() => {
+                confetti({
+                    particleCount: 60,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 }
+                });
+                confetti({
+                    particleCount: 60,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 }
+                });
+            }, 300);
+        }
+
+        window.onload = function() {
+            createSparkles();
+        };
+    </script>
+</body>
+</html>
