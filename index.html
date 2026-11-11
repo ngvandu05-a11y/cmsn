@@ -184,9 +184,37 @@
             </div>
 
             <!-- NÚT MỞ BẰNG BẮT ĐẦU HIỆU ỨNG -->
-            <button id="start-animation-btn" onclick="runCakeAnimation()" class="mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-2xl border-2 border-yellow-300 transform transition active:scale-95 text-base sm:text-lg animate-pulse">
+            <button id="start-animation-btn" onclick="handleStartClick()" class="mt-4 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-2xl border-2 border-yellow-300 transform transition active:scale-95 text-base sm:text-lg animate-pulse">
                 🎁 Khám phá món quà ✨
             </button>
+
+            <!-- KHU VỰC MÀN HÌNH ĐẾM NGƯỢC (HIỂN THỊ NẾU CHƯA ĐẾN GIỜ MỞ LINK) -->
+            <div id="countdown-box" class="hidden mt-6 w-full bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-pink-300/30 shadow-2xl">
+                <p class="text-sm font-comfortaa text-pink-200 mb-3 animate-pulse">
+                    ⏰ Quà bí mật sẽ tự động mở sau:
+                </p>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="bg-purple-900/60 p-2 rounded-xl border border-pink-400/30">
+                        <span id="cd-days" class="text-2xl font-black text-yellow-300 font-mono">00</span>
+                        <div class="text-[10px] text-pink-200 uppercase tracking-wider font-semibold">Ngày</div>
+                    </div>
+                    <div class="bg-purple-900/60 p-2 rounded-xl border border-pink-400/30">
+                        <span id="cd-hours" class="text-2xl font-black text-yellow-300 font-mono">00</span>
+                        <div class="text-[10px] text-pink-200 uppercase tracking-wider font-semibold">Giờ</div>
+                    </div>
+                    <div class="bg-purple-900/60 p-2 rounded-xl border border-pink-400/30">
+                        <span id="cd-minutes" class="text-2xl font-black text-yellow-300 font-mono">00</span>
+                        <div class="text-[10px] text-pink-200 uppercase tracking-wider font-semibold">Phút</div>
+                    </div>
+                    <div class="bg-purple-900/60 p-2 rounded-xl border border-pink-400/30">
+                        <span id="cd-seconds" class="text-2xl font-black text-pink-400 font-mono">00</span>
+                        <div class="text-[10px] text-pink-200 uppercase tracking-wider font-semibold">Giây</div>
+                    </div>
+                </div>
+                <p class="text-xs text-yellow-200/80 italic mt-3 font-light">
+                    Hẹn gặp Cẩm Tiên vào đúng 00:00 ngày 12/11 nhé! 🎂💖
+                </p>
+            </div>
 
             <!-- KHU VỰC HIỆN BÁNH VÀ NẾN INTRO -->
             <div id="cake-animation-container" class="hidden relative my-6 flex-col items-center justify-end h-64 w-80">
@@ -468,6 +496,10 @@
         let isAudioPlaying = false;
         let synth = null;
         let isCandleBlown = false;
+        let countdownTimer = null;
+
+        // Cấu hình mốc thời gian mở link: 00:00 ngày 12/11/2026
+        const TARGET_LOCK_TIME = new Date('2026-11-12T00:00:00').getTime();
 
         function createSparkles() {
             const container = document.getElementById('sparkles-container');
@@ -485,6 +517,58 @@
         }
 
         /* -------------------------------------------------------------
+           XỬ LÝ KIỂM TRA THỜI GIAN VÀ ĐẾM NGƯỢC
+        ------------------------------------------------------------- */
+        function handleStartClick() {
+            const now = new Date().getTime();
+
+            // Nếu CHƯA đến mốc 00:00:00 12/11/2026
+            if (now < TARGET_LOCK_TIME) {
+                showCountdownScreen();
+            } else {
+                // Đã đến thời gian quy định -> Chạy hiệu ứng bánh rơi & vào giao diện sinh nhật
+                runCakeAnimation();
+            }
+        }
+
+        function showCountdownScreen() {
+            const countdownBox = document.getElementById('countdown-box');
+            const statusText = document.getElementById('intro-status-text');
+
+            countdownBox.classList.remove('hidden');
+            statusText.innerText = "⏳ Chưa tới giờ mở quà đâu nhé! Hãy kiên nhẫn chờ đếm ngược nha ✨";
+
+            updateCountdown();
+            if (!countdownTimer) {
+                countdownTimer = setInterval(updateCountdown, 1000);
+            }
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = TARGET_LOCK_TIME - now;
+
+            if (distance <= 0) {
+                clearInterval(countdownTimer);
+                document.getElementById('countdown-box').classList.add('hidden');
+                document.getElementById('start-animation-btn').classList.remove('hidden');
+                document.getElementById('intro-status-text').innerText = "🎉 Đã đến giờ rồi! Nhấn nút để mở quà thôi nào!";
+                runCakeAnimation();
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+            document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('cd-minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('cd-seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        /* -------------------------------------------------------------
            HIỆU ỨNG INTRO: BÁNH RƠI 3 TẦNG -> NẾN SỐ 8 -> VÀO TRANG CHÍNH
         ------------------------------------------------------------- */
         function runCakeAnimation() {
@@ -492,6 +576,7 @@
             playBirthdayTune();
 
             const startBtn = document.getElementById('start-animation-btn');
+            const countdownBox = document.getElementById('countdown-box');
             const statusText = document.getElementById('intro-status-text');
             const cakeContainer = document.getElementById('cake-animation-container');
             const cakeBase = document.getElementById('cake-base');
@@ -501,8 +586,9 @@
             const candle = document.getElementById('intro-candle');
             const flame = document.getElementById('intro-flame');
 
-            // Ẩn nút bắt đầu & hiện container bánh
+            // Ẩn nút bắt đầu & đếm ngược, hiện container bánh
             startBtn.classList.add('hidden');
+            countdownBox.classList.add('hidden');
             statusText.innerText = "🎂 Đang chuẩn bị chiếc bánh tuổi 8 đặc biệt...";
             cakeContainer.classList.remove('hidden');
             cakeContainer.classList.add('flex');
